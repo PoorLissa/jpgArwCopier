@@ -9,7 +9,10 @@
 
 #include <stdio.h>
 #include <tchar.h>
-
-
-
-// TODO: reference additional headers your program requires here
+#include <iostream>
+#include <windows.h>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <sys/stat.h>
+#include <iomanip>
