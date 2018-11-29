@@ -15,12 +15,15 @@ inline ostream& white2	(ostream &);
 
 // ================================================================================================
 
-struct ok_fail 
+// Cout helper structure
+struct ok_fail
 {
 	ok_fail(bool val) : data(val) {};
 	bool data;
 };
+// ================================================================================================
 
+// Main application class
 class myApp {
 
 	public:
@@ -34,6 +37,7 @@ class myApp {
 		bool	AppRunning	()	{ return isRunning;	}
 static	HANDLE	getConsole	()	{ return console;	}
 
+		void initDebugMode			();
 		void setError				(const char *);
 		void setConsoleHandler		();
 		void parse_args				(int, _TCHAR*[]);
@@ -61,16 +65,16 @@ static	DWORD CALLBACK	CopyProgressRoutine	(l_int, l_int, l_int, l_int, DWORD, DW
 
 	private:
 
-static	HANDLE console;
-
-		bool isDebug;
-static	bool isRunning;
-static	BOOL cancelCopy;
+		bool	isDebug;
+static	bool	isRunning;
+static	BOOL	cancelCopy;
+static	HANDLE	console;
 
 		vector<string> vecArw;
 		vector<string> vecJpg;
 
 		string _dirFrom, _dirTo, _jpgDir, _arwDir, _error;
 
-		unsigned int maxLen;
+		unsigned int maxLen, createDirsLen;
 };
+// ================================================================================================

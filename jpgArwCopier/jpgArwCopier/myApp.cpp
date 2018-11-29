@@ -3,6 +3,7 @@
 
 // ================================================================================================
 
+// Static members initialization
 bool	myApp::isRunning  = false;
 BOOL	myApp::cancelCopy = FALSE;
 HANDLE	myApp::console	  = nullptr;
@@ -19,32 +20,28 @@ template <class _Elem, class _Traits>
 basic_ostream<_Elem,_Traits>& 
 	operator << (basic_ostream<_Elem,_Traits>& stream, ok_fail& val)
 {
-	if( val.data )
-		stream << green << "Ok";
-	else
-		stream << red << "Fail";
-
-    return stream << white;
+    return (val.data ? stream << green << "Ok" : stream << red << "Fail") << white;
 }
 
 // ================================================================================================
 
 myApp::myApp()
 {
-	isRunning  = true;
-	cancelCopy = FALSE;
+	initDebugMode();
+
+   _dirFrom.clear();
+   _dirTo.clear();
+   _error.clear();
 
 	console = GetStdHandle(STD_OUTPUT_HANDLE);
 
-	#ifndef _DEBUG
-		isDebug = false;
-	#else
-		isDebug = true;
-	#endif
+	if( console == INVALID_HANDLE_VALUE )
+	{
+	   _error = "Could not retrieve the CONSOLE Handle";
+	}
 
-	_dirFrom.clear();
-	_dirTo.clear();
-	_error.clear();
+	isRunning  = true;
+	cancelCopy = FALSE;
 }
 // ------------------------------------------------------------------------------------------------
 
@@ -63,8 +60,8 @@ void myApp::setError(const char *err)
 
 void myApp::setConsoleHandler()
 {
-	if( !SetConsoleCtrlHandler(&myApp::consoleHandler, TRUE))
-		_error = "Could not set control handler";
+	if( !SetConsoleCtrlHandler(&myApp::consoleHandler, TRUE) )
+		_error = "Could not set Control Handler";
 }
 // ------------------------------------------------------------------------------------------------
 
@@ -92,6 +89,8 @@ void myApp::parse_args(int argc, _TCHAR* argv[])
 
 		setDirs(from, to);
 	}
+
+	return;
 }
 // ------------------------------------------------------------------------------------------------
 
@@ -158,10 +157,11 @@ bool myApp::check_disk_and_files()
 	int offset1 = getOffset(max, 0);
 	int offset2 = getOffset(tmp, 4);
 
-	cout.imbue(std::locale(""));
-
 	cout << " Disk space available : " << setw(offset1) << freeSpace << " bytes (" << fixed << setprecision(3) << setw(offset2) << getSizeGb(freeSpace) << " Gb) - " << ok_fail( diskOk) << endl;
 	cout << " Total files size     : " << setw(offset1) << filesSize << " bytes (" << fixed << setprecision(3) << setw(offset2) << getSizeGb(filesSize) << " Gb) - " << ok_fail(filesOk) << endl;
+
+	// Calculate createDirsLen as a sum of 2 offsets and the length 0f the text above
+	createDirsLen = 39 + offset1 + offset2;
 
 	return diskOk && filesOk;
 }
@@ -172,31 +172,36 @@ bool myApp::check_arw_jpg_Dirs()
 {
 	bool res1(true), res2(true);
 
-	auto createDir = [](const char *name, const string &dir, bool &res)
+	auto createDir = [](const char *name, const string &dir, bool &res, int len)
 	{
 		cout << " '" << name << "' Dir does not exist. Creating " << flush;
-
+ 
 		res = CreateDirectoryA(dir.c_str(), NULL);
 
-		Sleep(333);
-			
-		for(int i = 0; i < 10; i++)
+		Sleep(222);
+
+		for(int i = 0; i < len; i++)
 		{
-			Sleep(90);
+			Sleep(25);
 			cout << "." << flush;
 		}
 
 		cout << " " << ok_fail(res) << endl;
+
+		Sleep(333);
 	};
 
 	if( !isDebug )
 	{
 		bool newLine = true;
 
+		// reduce createDirsLen by the length of the text above
+		createDirsLen -= 37;
+
 		if( !dirExists( _arwDir ) )
 		{
 			cout << endl;
-			createDir("arw", _arwDir, res1);
+			createDir("arw", _arwDir, res1, createDirsLen);
 			newLine = false;
 		}
 
@@ -205,7 +210,7 @@ bool myApp::check_arw_jpg_Dirs()
 			if( newLine )
 				cout << endl;
 
-			createDir("jpg", _jpgDir, res2);
+			createDir("jpg", _jpgDir, res2, createDirsLen);
 		}
 	}
 
@@ -236,6 +241,8 @@ void myApp::returnCaret(const int num)
 	pos.X = info.dwCursorPosition.X - num;
 	pos.Y = info.dwCursorPosition.Y;
 	SetConsoleCursorPosition(console, pos);
+
+	return;
 }
 // ------------------------------------------------------------------------------------------------
 
@@ -309,6 +316,19 @@ ULONGLONG myApp::getFiles()
 			
 	size += findFiles(_dirFrom, vecArw, "*.arw");
 	size += findFiles(_dirFrom, vecJpg, "*.jpg");
+
+	size_t offset = 0, max = vecArw.size() > vecJpg.size() ? vecArw.size() : vecJpg.size();
+
+	while( max > 0 )
+	{
+		max /= 10;
+		offset++;
+	}
+
+	cout << white2;
+	cout << " Found " << setw(offset) << vecArw.size() << " .arw files" << endl;
+	cout << " Found " << setw(offset) << vecJpg.size() << " .jpg files" << endl;
+	cout << white << endl;
 
 	return size;
 }
@@ -563,6 +583,18 @@ string myApp::getNewName(const string &oldName) const
 	}
 	
 	return name;
+}
+// ------------------------------------------------------------------------------------------------
+
+void myApp::initDebugMode()
+{
+	#ifndef _DEBUG
+		isDebug = false;
+	#else
+		isDebug = true;
+	#endif
+
+	return;
 }
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------

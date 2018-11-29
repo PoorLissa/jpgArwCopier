@@ -7,6 +7,8 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	cout.imbue( std::locale("en") );
+
 	char  ch = 0;
 	myApp app;
 

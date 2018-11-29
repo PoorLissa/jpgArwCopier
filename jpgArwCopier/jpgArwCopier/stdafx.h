@@ -16,3 +16,4 @@
 #include <algorithm>
 #include <sys/stat.h>
 #include <iomanip>
+#include <locale>
