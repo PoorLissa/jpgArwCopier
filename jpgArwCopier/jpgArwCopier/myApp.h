@@ -6,12 +6,11 @@ using namespace std;
 
 // ================================================================================================
 
-inline ostream& aaa1	(ostream &);
 inline ostream& green	(ostream &);
 inline ostream& white	(ostream &);
+inline ostream& White	(ostream &);
 inline ostream& yellow	(ostream &);
 inline ostream& red		(ostream &);
-inline ostream& white2	(ostream &);
 
 // ================================================================================================
 
@@ -52,6 +51,7 @@ typedef LARGE_INTEGER l_int;
 static	BOOL WINAPI		consoleHandler		(DWORD);
 static	void			returnCaret			(const int);
 static	DWORD CALLBACK	CopyProgressRoutine	(l_int, l_int, l_int, l_int, DWORD, DWORD, HANDLE, HANDLE, LPVOID);
+		void			CLS					();
 		void			setDirs				(wstring, wstring);
 		ULONGLONG		getFiles			();																		// get 2 vectors with file names and the total size of all files
 		ULONGLONG		getFreeSpace		();

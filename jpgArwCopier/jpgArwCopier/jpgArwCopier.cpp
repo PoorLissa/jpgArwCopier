@@ -7,8 +7,6 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	cout.imbue( std::locale("en") );
-
 	char  ch = 0;
 	myApp app;
 
@@ -30,8 +28,8 @@ int _tmain(int argc, _TCHAR* argv[])
 			{
 				cout << endl;
 				cout << green << " Ready to Proceed!" << white << endl;
-				cout << "   Press 'Ctrl+C' anytime you want to Stop (Incomplete files will be deleted)" << endl;
-				cout << "   Hit 'Enter' to Begin OR input any other text to Exit: " << flush;
+				cout << "   Press '" << White << "Ctrl+C" << white << "' anytime you want to " << White << "Stop" << white << endl;
+				cout << "   Hit '" << White << "Enter" << white << "' to " << White << "Begin" << white << " OR input any other text to " << White << "Exit" << white << ": " << flush;
 
 				ch = getchar();
 
@@ -51,7 +49,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	else
 	{
 		if( int(ch) == 10 )
-			cout << green << " Done. Press 'Enter' to Exit. " << white;
+			cout << green << " Done. Press '" << White << "Enter" << green << "' to Exit. " << white;
 		else
 			cout << "\n Exiting...\n";
 	}

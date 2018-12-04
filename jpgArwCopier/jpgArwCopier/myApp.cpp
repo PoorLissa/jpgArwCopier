@@ -12,9 +12,9 @@ HANDLE	myApp::console	  = nullptr;
 
 extern ostream& green	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), FOREGROUND_GREEN|FOREGROUND_INTENSITY);									return s; }
 extern ostream& white	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);						return s; }
+extern ostream& White	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE|FOREGROUND_INTENSITY);	return s; }
 extern ostream& yellow	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), FOREGROUND_GREEN|FOREGROUND_RED|FOREGROUND_INTENSITY);					return s; }
 extern ostream& red		(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), FOREGROUND_RED|FOREGROUND_INTENSITY);									return s; }
-extern ostream& white2	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE|FOREGROUND_INTENSITY);	return s; }
 
 template <class _Elem, class _Traits>
 basic_ostream<_Elem,_Traits>& 
@@ -38,6 +38,11 @@ myApp::myApp()
 	if( console == INVALID_HANDLE_VALUE )
 	{
 	   _error = "Could not retrieve the CONSOLE Handle";
+	}
+	else
+	{
+		CLS();
+		cout.imbue( std::locale("en") );
 	}
 
 	isRunning  = true;
@@ -120,7 +125,7 @@ bool myApp::check_disk_and_files()
 				cnt++;
 
 			// take thousands separators into account
-			if( cnt > 2 )
+			if( cnt > 2 && val > 0 )
 			{
 				cnt = 0;
 				offset++;
@@ -152,15 +157,15 @@ bool myApp::check_disk_and_files()
 		   _error = "Not enough free space to copy the files!";
 
 	ULONGLONG max = freeSpace > filesSize ? freeSpace : filesSize;
-	ULONGLONG tmp = static_cast<ULONGLONG>(max/1024.0/1024/1024);
+	ULONGLONG tmp = static_cast<ULONGLONG>(getSizeGb(max));
 
 	int offset1 = getOffset(max, 0);
-	int offset2 = getOffset(tmp, 4);
+	int offset2 = getOffset(tmp, 4);	// precision 3 + 1 decimal separator
 
 	cout << " Disk space available : " << setw(offset1) << freeSpace << " bytes (" << fixed << setprecision(3) << setw(offset2) << getSizeGb(freeSpace) << " Gb) - " << ok_fail( diskOk) << endl;
 	cout << " Total files size     : " << setw(offset1) << filesSize << " bytes (" << fixed << setprecision(3) << setw(offset2) << getSizeGb(filesSize) << " Gb) - " << ok_fail(filesOk) << endl;
 
-	// Calculate createDirsLen as a sum of 2 offsets and the length 0f the text above
+	// Calculate createDirsLen as a sum of 2 offsets and the length of the text above
 	createDirsLen = 39 + offset1 + offset2;
 
 	return diskOk && filesOk;
@@ -175,8 +180,8 @@ bool myApp::check_arw_jpg_Dirs()
 	auto createDir = [](const char *name, const string &dir, bool &res, int len)
 	{
 		cout << " '" << name << "' Dir does not exist. Creating " << flush;
- 
-		res = CreateDirectoryA(dir.c_str(), NULL);
+
+		res = CreateDirectoryA(dir.c_str(), NULL) ? true : false;
 
 		Sleep(222);
 
@@ -251,9 +256,22 @@ DWORD CALLBACK myApp::CopyProgressRoutine(l_int TotalFileSize, l_int TotalBytesT
 	int progress = static_cast<int>(100 * TotalBytesTransferred.QuadPart / TotalFileSize.QuadPart);
 
 	returnCaret(4);
-
 	cout << std::right << std::setw(3) << progress << "%";
 
+	// Some graphic progress meter
+#if 0
+	returnCaret(4);
+	cout << std::right << std::setw(3) << progress << "%";
+
+	returnCaret(-13);
+
+	int max = progress/10;
+
+	for(int i = 0; i < max; i++)
+		cout << '=';
+
+	returnCaret(13 + max);
+#endif
 	return PROGRESS_CONTINUE;
 }
 // ------------------------------------------------------------------------------------------------
@@ -292,10 +310,10 @@ void myApp::setDirs(wstring from, wstring to)
 	_arwDir = _dirTo + "arw\\";
 
 	cout << endl;
-	cout << "   [from] : '" << _dirFrom << "'" << endl;
-	cout << "     [to] : '" << _dirTo	<< "'" << endl;
-	cout << " [arwDir] : '" << _arwDir  << "'" << endl;
-	cout << " [jpgDir] : '" << _jpgDir  << "'" << endl;
+	cout << " [  from] : " << _dirFrom << endl;
+	cout << " [    to] : " << _dirTo   << endl;
+	cout << " [arwDir] : " << _arwDir  << endl;
+	cout << " [jpgDir] : " << _jpgDir  << endl;
 	cout << endl;
 
 	if( !dirExists( _dirFrom ) || !dirExists( _dirTo ) )
@@ -325,7 +343,7 @@ ULONGLONG myApp::getFiles()
 		offset++;
 	}
 
-	cout << white2;
+	cout << White;
 	cout << " Found " << setw(offset) << vecArw.size() << " .arw files" << endl;
 	cout << " Found " << setw(offset) << vecJpg.size() << " .jpg files" << endl;
 	cout << white << endl;
@@ -385,9 +403,12 @@ string myApp::copy(const char *str, const string &dir, const vector<string> &vec
 			wstring new_file = getWStr( dir     + new_name);
 
 			cout << "  [" << right << setw(offset) << i+1 << "/" << Size << " ]: " 
-								   << setw(maxLen) << white2 << old_name << white << " ==> " 
-								   << setw(maxLen) << white2 << new_name << white << " - [ ..0% ]";
-
+								   << setw(maxLen) << White << old_name << white << " ==> " 
+								   << setw(maxLen) << White << new_name << white << " - [ ..0% ]";
+#if 0
+			cout << "         [            ]";
+			returnCaret(23);
+#endif
 			if( isDebug )
 			{
 				cout << " - " << ok_fail(true) << " (Debug Mode)" << endl;
@@ -406,7 +427,7 @@ string myApp::copy(const char *str, const string &dir, const vector<string> &vec
 					returnCaret(2);
 
 					// If the user presses 'ctrl+C' while copying, cancelCopy becomes 'TRUE', operation is interrupted and currently copied file is deleted
-					bool success = CopyFileExW(old_file.c_str(), new_file.c_str(), CopyProgressRoutine, NULL, &cancelCopy, dwCopyFlags);
+					bool success = CopyFileExW(old_file.c_str(), new_file.c_str(), CopyProgressRoutine, NULL, &cancelCopy, dwCopyFlags) ? true : false;
 
 					cout << " ] - " << ok_fail(success);
 					
@@ -593,6 +614,26 @@ void myApp::initDebugMode()
 	#else
 		isDebug = true;
 	#endif
+
+	return;
+}
+// ------------------------------------------------------------------------------------------------
+
+// Clear console window
+void myApp::CLS()
+{
+	COORD coord;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+
+    GetConsoleScreenBufferInfo(console, &csbi);
+    size_t rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 3;
+
+    for(size_t i = 0; i < rows; i++)
+		cout << endl;
+
+	coord.X = 0;
+	coord.Y = 0;
+	SetConsoleCursorPosition(console, coord);
 
 	return;
 }
