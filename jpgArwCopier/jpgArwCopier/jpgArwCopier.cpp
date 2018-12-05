@@ -7,7 +7,6 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	char  ch = 0;
 	myApp app;
 
 
@@ -31,12 +30,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				cout << "   Press '" << White << "Ctrl+C" << white << "' anytime you want to " << White << "Stop" << white << endl;
 				cout << "   Hit '" << White << "Enter" << white << "' to " << White << "Begin" << white << " OR input any other text to " << White << "Exit" << white << ": " << flush;
 
-				ch = getchar();
-
-				if( int(ch) == 10 )
-				{
-					app.Copy();
-				}
+				app.Copy();
 			}
 		}
 	}
@@ -48,7 +42,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	else
 	{
-		if( int(ch) == 10 )
+		if( app.isEnterPressed() && app.AppRunning() )
 			cout << green << " Done. Press '" << White << "Enter" << green << "' to Exit. " << white;
 		else
 			cout << "\n Exiting...\n";

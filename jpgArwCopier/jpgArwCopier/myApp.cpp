@@ -10,11 +10,19 @@ HANDLE	myApp::console	  = nullptr;
 
 // ================================================================================================
 
-extern ostream& green	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), FOREGROUND_GREEN|FOREGROUND_INTENSITY);									return s; }
-extern ostream& white	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);						return s; }
-extern ostream& White	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE|FOREGROUND_INTENSITY);	return s; }
-extern ostream& yellow	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), FOREGROUND_GREEN|FOREGROUND_RED|FOREGROUND_INTENSITY);					return s; }
-extern ostream& red		(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), FOREGROUND_RED|FOREGROUND_INTENSITY);									return s; }
+#define clGreen		FOREGROUND_GREEN|								  FOREGROUND_INTENSITY
+#define clWhite		FOREGROUND_RED	|FOREGROUND_GREEN|FOREGROUND_BLUE
+#define clWHITE		FOREGROUND_RED	|FOREGROUND_GREEN|FOREGROUND_BLUE|FOREGROUND_INTENSITY
+#define clYellow	FOREGROUND_GREEN|FOREGROUND_RED	 |				  FOREGROUND_INTENSITY
+#define clRed		FOREGROUND_RED	|								  FOREGROUND_INTENSITY
+
+// ================================================================================================
+
+extern ostream& green	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), clGreen );	return s; }
+extern ostream& white	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), clWhite );	return s; }
+extern ostream& White	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), clWHITE );	return s; }
+extern ostream& yellow	(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), clYellow);	return s; }
+extern ostream& red		(ostream &s) { SetConsoleTextAttribute(myApp::getConsole(), clRed	);	return s; }
 
 template <class _Elem, class _Traits>
 basic_ostream<_Elem,_Traits>& 
@@ -28,6 +36,8 @@ basic_ostream<_Elem,_Traits>&
 myApp::myApp()
 {
 	initDebugMode();
+
+	ch = 0;
 
    _dirFrom.clear();
    _dirTo.clear();
@@ -101,12 +111,17 @@ void myApp::parse_args(int argc, _TCHAR* argv[])
 
 void myApp::Copy()
 {
-	string str("\n");
+	doWait();
 
-	str += copy("arw", _arwDir, vecArw);
-	str += copy("jpg", _jpgDir, vecJpg);
+	if( isEnterPressed() )
+	{
+		string str("\n");
 
-	cout << str << endl;
+		str += copy("arw", _arwDir, vecArw);
+		str += copy("jpg", _jpgDir, vecJpg);
+
+		cout << str << endl;
+	}
 
 	return;
 }
@@ -181,7 +196,7 @@ bool myApp::check_arw_jpg_Dirs()
 	{
 		string str = string(" '' Dir does not exist. Creating ").insert(2, name);
  
-		for(int i = 0; i < str.length(); i++)
+		for(size_t i = 0; i < str.length(); i++)
 		{
 			cout << str[i] << flush;
 
@@ -647,6 +662,18 @@ void myApp::CLS()
 	SetConsoleCursorPosition(console, coord);
 
 	return;
+}
+// ------------------------------------------------------------------------------------------------
+
+void myApp::doWait()
+{
+	ch = getchar();
+}
+// ------------------------------------------------------------------------------------------------
+
+bool myApp::isEnterPressed()
+{
+	return (static_cast<int>(ch) == 10);
 }
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------

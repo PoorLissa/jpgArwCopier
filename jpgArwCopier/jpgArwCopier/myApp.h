@@ -14,6 +14,11 @@ inline ostream& red		(ostream &);
 
 // ================================================================================================
 
+#define myApp_Typedefs \
+	typedef LARGE_INTEGER l_int;
+
+// ================================================================================================
+
 // Cout helper structure
 struct ok_fail
 {
@@ -24,6 +29,8 @@ struct ok_fail
 
 // Main application class
 class myApp {
+
+	myApp_Typedefs;
 
 	public:
 
@@ -42,22 +49,22 @@ static	HANDLE	getConsole	()	{ return console;	}
 		void parse_args				(int, _TCHAR*[]);
 		void Copy					();
 		bool check_disk_and_files	();
-		bool check_arw_jpg_Dirs		();																				// Check if arw and jpg dirs exist / create them if they are not
+		bool check_arw_jpg_Dirs		();																	// Check if arw and jpg dirs exist / create them if they are not
+		bool isEnterPressed			();
 
 	private:
-
-typedef LARGE_INTEGER l_int;
 
 static	BOOL WINAPI		consoleHandler		(DWORD);
 static	void			returnCaret			(const int);
 static	DWORD CALLBACK	CopyProgressRoutine	(l_int, l_int, l_int, l_int, DWORD, DWORD, HANDLE, HANDLE, LPVOID);
 		void			CLS					();
 		void			setDirs				(wstring, wstring);
-		ULONGLONG		getFiles			();																		// get 2 vectors with file names and the total size of all files
+		ULONGLONG		getFiles			();															// get 2 vectors with file names and the total size of all files
 		ULONGLONG		getFreeSpace		();
 		string			copy				(const char *, const string &, const vector<string> &);
 		wstring			getWStr				(string);
 		string			getStr				(wstring);
+		void			doWait				();
 		bool			dirExists			(string);
 		bool			fileExists			(wstring);
 		ULONGLONG		findFiles			(string, vector<string> &, char *);
@@ -65,6 +72,7 @@ static	DWORD CALLBACK	CopyProgressRoutine	(l_int, l_int, l_int, l_int, DWORD, DW
 
 	private:
 
+		char	ch;
 		bool	isDebug;
 static	bool	isRunning;
 static	BOOL	cancelCopy;
