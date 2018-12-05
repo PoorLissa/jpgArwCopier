@@ -179,21 +179,31 @@ bool myApp::check_arw_jpg_Dirs()
 
 	auto createDir = [](const char *name, const string &dir, bool &res, int len)
 	{
-		cout << " '" << name << "' Dir does not exist. Creating " << flush;
+		string str = string(" '' Dir does not exist. Creating ").insert(2, name);
+ 
+		for(int i = 0; i < str.length(); i++)
+		{
+			cout << str[i] << flush;
+
+			Sleep(10);
+
+			if( str[i] == ' ' )
+			{
+				Sleep(33);
+			}
+		}
 
 		res = CreateDirectoryA(dir.c_str(), NULL) ? true : false;
 
-		Sleep(222);
+		Sleep(200);
 
 		for(int i = 0; i < len; i++)
 		{
-			Sleep(25);
+			Sleep(33);
 			cout << "." << flush;
 		}
 
 		cout << " " << ok_fail(res) << endl;
-
-		Sleep(333);
 	};
 
 	if( !isDebug )
@@ -251,6 +261,7 @@ void myApp::returnCaret(const int num)
 }
 // ------------------------------------------------------------------------------------------------
 
+// Copy routine callback
 DWORD CALLBACK myApp::CopyProgressRoutine(l_int TotalFileSize, l_int TotalBytesTransferred, l_int StreamSize, l_int StreamBytesTransferred, DWORD dwStreamNumber, DWORD dwCallbackReason, HANDLE hSourceFile, HANDLE hDestinationFile, LPVOID lpData)
 {
 	int progress = static_cast<int>(100 * TotalBytesTransferred.QuadPart / TotalFileSize.QuadPart);
