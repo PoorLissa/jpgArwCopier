@@ -16,6 +16,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	if( app.getError().empty() )
 	{
 		app.parse_args(argc, argv);
+		app.consoleCursorVisible(false);
 	}
 
 
@@ -47,6 +48,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		else
 			cout << "\n Exiting...\n";
 	}
+
+	app.consoleCursorVisible(true);
 
 	if( app.AppRunning() )
 		getchar();

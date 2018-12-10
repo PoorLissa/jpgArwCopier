@@ -51,6 +51,7 @@ static	HANDLE	getConsole	()	{ return console;	}
 		bool check_disk_and_files	();
 		bool check_arw_jpg_Dirs		();																	// Check if arw and jpg dirs exist / create them if they are not
 		bool isEnterPressed			();
+		int	 consoleCursorVisible	(bool);
 
 	private:
 

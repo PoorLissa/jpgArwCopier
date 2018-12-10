@@ -667,13 +667,32 @@ void myApp::CLS()
 
 void myApp::doWait()
 {
+	consoleCursorVisible(true);
+
 	ch = getchar();
+
+	consoleCursorVisible(false);
+
+	return;
 }
 // ------------------------------------------------------------------------------------------------
 
 bool myApp::isEnterPressed()
 {
 	return (static_cast<int>(ch) == 10);
+}
+// ------------------------------------------------------------------------------------------------
+
+int myApp::consoleCursorVisible(bool showFlag)
+{
+	CONSOLE_CURSOR_INFO cursorInfo;
+
+	cursorInfo.dwSize = 1;
+
+	GetConsoleCursorInfo(console, &cursorInfo);
+	cursorInfo.bVisible = showFlag;					// set the cursor visibility
+
+	return SetConsoleCursorInfo(console, &cursorInfo);
 }
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
