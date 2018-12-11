@@ -7,6 +7,7 @@
 bool	myApp::isRunning  = false;
 BOOL	myApp::cancelCopy = FALSE;
 HANDLE	myApp::console	  = nullptr;
+UINT	myApp::delay	  = 0;
 
 // ================================================================================================
 
@@ -183,6 +184,8 @@ bool myApp::check_disk_and_files()
 	// Calculate createDirsLen as a sum of 2 offsets and the length of the text above
 	createDirsLen = 39 + offset1 + offset2;
 
+	setDelay(filesSize);
+
 	return diskOk && filesOk;
 }
 // ------------------------------------------------------------------------------------------------
@@ -283,6 +286,9 @@ DWORD CALLBACK myApp::CopyProgressRoutine(l_int TotalFileSize, l_int TotalBytesT
 
 	returnCaret(4);
 	cout << std::right << std::setw(3) << progress << "%";
+
+	if( delay )
+		Sleep(delay);
 
 	// Some graphic progress meter
 #if 0
@@ -693,6 +699,22 @@ int myApp::consoleCursorVisible(bool showFlag)
 	cursorInfo.bVisible = showFlag;					// set the cursor visibility
 
 	return SetConsoleCursorInfo(console, &cursorInfo);
+}
+// ------------------------------------------------------------------------------------------------
+
+// For file batches less than 250 Mb in size, introduce slight delay in copying
+void myApp::setDelay(ULONGLONG size)
+{
+	delay = 0;
+
+	unsigned int maxSize = 250 * 1024 * 1024;
+
+	if( size < maxSize )
+	{
+		delay = 20 * (static_cast<unsigned int>(maxSize / size));
+	}
+
+	return;
 }
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------

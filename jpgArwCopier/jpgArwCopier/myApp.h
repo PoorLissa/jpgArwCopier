@@ -70,6 +70,7 @@ static	DWORD CALLBACK	CopyProgressRoutine	(l_int, l_int, l_int, l_int, DWORD, DW
 		bool			fileExists			(wstring);
 		ULONGLONG		findFiles			(string, vector<string> &, char *);
 		string			getNewName			(const string &) const;
+		void			setDelay			(ULONGLONG);
 
 	private:
 
@@ -85,5 +86,6 @@ static	HANDLE	console;
 		string _dirFrom, _dirTo, _jpgDir, _arwDir, _error;
 
 		unsigned int maxLen, createDirsLen;
+static	unsigned int delay;
 };
 // ================================================================================================
