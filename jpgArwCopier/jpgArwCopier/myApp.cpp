@@ -709,7 +709,7 @@ void myApp::setDelay(ULONGLONG size)
 
 	unsigned int maxSize = 250 * 1024 * 1024;
 
-	if( size < maxSize )
+	if( size < maxSize && size > 0 )
 	{
 		delay = 20 * (static_cast<unsigned int>(maxSize / size));
 	}
